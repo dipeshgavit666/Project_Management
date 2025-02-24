@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Popover } from '@headlessui/react'
 import axios from "axios"
 import toast from 'react-hot-toast'
-import AddProjectModal from './AddProjectModal.jsx'
+import AddProjectModal from './AddProjectModal'
 
 const ProjectDropdown = ({ id, navigate }) => {
     const [isModalOpen, setModalState] = useState(false)

@@ -48,5 +48,15 @@ const userSchema = new Schema({
 })
 
 
+userSchema.pre("save", async function (netx) {
+
+    if(!this.modified("password")) return netx
+    this.password = bcrypt.hash(this.password, 10)
+
+
+
+    netx()
+})
+
 const User = model("User", userSchema)
 export default User
