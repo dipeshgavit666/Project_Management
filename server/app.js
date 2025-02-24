@@ -19,6 +19,12 @@ app.use(express.urlencoded({
 }))
 app.use(express.static("public"))
 
+//import routes
+import  ProjectRouter  from "./src/controllers/project.controller.js"
+
+
+//routes
+app.use("/api/v1/project", ProjectRouter)
 
 
 export{app}

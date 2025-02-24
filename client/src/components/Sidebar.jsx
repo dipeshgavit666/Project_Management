@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import AddProjectModal from './AddProjectModal'
+import AddProjectModal from './AddProjectModal.jsx'
 import axios from 'axios'
 import { Link } from 'react-router-dom'
 // import toast from 'react-hot-toast'
@@ -67,26 +67,3 @@ const Sidebar = () => {
 }
 
 export default Sidebar
-
-// import { ChevronLeftIcon } from "@heroicons/react/24/outline";
-
-
-// export default function Sidebar({ children }) {
-//    return(
-//     <aside className="h-screen">
-//         <nav className="h-full flex-col bh-whtie border-r shadow-sm">
-//             <div className="p-4 pb-2 flex justify-between items center">
-//                 <img src="https://img.logoipsum.com/243.svg" className="w-32" alt="logo" />
-//                     <button className="p-1.5 rounded-lg bg-gray-50 hover:bh-gray-100 ">
-//                         <ChevronLeftIcon />
-//                     </button>
-//             </div>
-//             <ul className="flrx-1 px-3">{children}</ul>
-
-//             <div className="boeder-t flex p-3">
-//                 <img src="https://ui-avatars.com/api/?background=a0a0a0" alt="" className="h-10 w-10 rounded-md" />
-//             </div>
-//         </nav>
-//     </aside>
-//    ) 
-// }

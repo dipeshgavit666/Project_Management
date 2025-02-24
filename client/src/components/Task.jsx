@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import { v4 as uuid } from "uuid";
 import AddTaskModal from "./AddTaskModal.jsx";
 import BtnPrimary from './BtnPrimary.jsx'

@@ -40,6 +40,9 @@ const userSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Organization'
     },
+    refreshToken: {
+        type: String
+    }
 }, {
     timestamps: true
 })

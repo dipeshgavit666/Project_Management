@@ -1,9 +1,9 @@
-import mongoose, { Schema } from "mongoose"
+import mongoose, { model, Schema } from "mongoose"
 
 const projectSchema = new Schema({
     name: {
         type: String,
-        required: true,
+        required: [true, "Project name is required"],
         trim: true,
         maxlength: [60, "you can use more than 60 characters"]
     },
