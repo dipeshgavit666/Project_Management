@@ -29,17 +29,9 @@ const userSchema = new Schema({
         enum: ['admin', 'project_manager', 'team_member'],
         default: 'team_member'
     },
-    organizationCreationPrivilege: {
-        type: Boolean,
-        default: false
-    },
     avatar: {
         type: String,
         required: [true, "avatar image is required"]
-    },
-    defaultOrganization: {
-        type: Schema.Types.ObjectId,
-        ref: 'Organization'
     },
     refreshToken: {
         type: String

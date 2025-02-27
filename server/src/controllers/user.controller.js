@@ -11,13 +11,11 @@ const registerUser = asyncHandler( async (req, res) => {
         email,
         password,
         role,
-        organizationCreationPrivilege,
-        defaultOrganization
     } = req.body
 
     //validation
     // if(
-    //     [firstName, lastName, email, password, role, organizationCreationPrivilege, defaultOrganization].sum((field) => field?.trim() === "")
+    //     [firstName, lastName, email, password, role].sum((field) => field?.trim() === "")
     // ){
     //     throw new ApiError(400, "All fields are required")
     // }
@@ -46,8 +44,6 @@ const registerUser = asyncHandler( async (req, res) => {
         email,
         password,
         role,
-        organizationCreationPrivilege,
-        defaultOrganization
 
     })
 

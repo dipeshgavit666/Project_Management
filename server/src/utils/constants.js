@@ -1,1 +1,1 @@
-export const DB_NAME="Project Management";
+export const DB_NAME="Project_Management";
