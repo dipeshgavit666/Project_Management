@@ -2,7 +2,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 import { Route, Router } from "express";
-import { Project } from "../controllers/project.controller.js";
+import  Project  from "../controllers/project.controller.js";
 
 
 const router = Router()

@@ -1,5 +1,5 @@
 import mongoose, { model, Schema } from "mongoose"
-import jwt from "jsonwetoken"
+import jwt from "jsonwebtoken"
 
 const userSchema = new Schema({
     firstName: {

@@ -1,7 +1,8 @@
 import {asyncHandler} from "../utils/asyncHandler.js"
 import {ApiError} from "../utils/ApiError.js"
 import { User } from "../models/user.model.js"
-import {uplaodOnCoudinary} from "../utils/cloudinary.js"
+import {uplaodOnCloudinary} from "../utils/cloudinary.js"
+import { ApiResponse } from "../utils/ApiResponse.js"
 
 const registerUser = asyncHandler( async (req, res) => {
     const {
@@ -15,11 +16,11 @@ const registerUser = asyncHandler( async (req, res) => {
     } = req.body
 
     //validation
-    if(
-        [firstName, lastName, email, password, role, organizationCreationPrivilege, defaultOrganization].sum((field) => field?.trim() === "")
-    ){
-        throw new ApiError(400, "All fields are required")
-    }
+    // if(
+    //     [firstName, lastName, email, password, role, organizationCreationPrivilege, defaultOrganization].sum((field) => field?.trim() === "")
+    // ){
+    //     throw new ApiError(400, "All fields are required")
+    // }
 
     const existedUser = await User.findOne({
         $or: [{email}]
@@ -35,7 +36,7 @@ const registerUser = asyncHandler( async (req, res) => {
         throw new ApiError(400, "Avatar file is missing")
     }
 
-    const avatar = await uplaodOnCoudinary(avatarLocalPath)
+    const avatar = await uplaodOnCloudinary(avatarLocalPath)
 
 
     const user = await User.create({
@@ -57,6 +58,10 @@ const registerUser = asyncHandler( async (req, res) => {
     if(!createdUser){
         throw new ApiError(500, "Something whent wrong")
     }
+
+    return res
+    .status(201)
+    .json(new ApiResponse(200, createdUser, "USer registered successfully"))
 })
 
 export {
