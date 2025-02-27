@@ -23,11 +23,13 @@ app.use(express.static("public"))
 app.use(cookieParser())
 
 //import routes
-import  ProjectRouter  from "./src/controllers/project.controller.js"
+import  projectRouter  from "./src/routes/project.routes.js"
+import userRouter from "./src/routes/user.routes.js"
 
 
 //routes
-app.use("/api/v1/project", ProjectRouter)
+app.use("/api/v1/project", projectRouter)
+app.use("/api/v1/users", userRouter)
 
 
 export{app}

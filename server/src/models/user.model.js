@@ -2,7 +2,7 @@ import mongoose, { model, Schema } from "mongoose"
 import jwt from "jsonwetoken"
 
 const userSchema = new Schema({
-    FirstName: {
+    firstName: {
         type: String,
         required: [true, "First name is required"],
         trim: true
@@ -35,7 +35,7 @@ const userSchema = new Schema({
     },
     avatar: {
         type: String,
-        default: ""
+        required: [true, "avatar image is required"]
     },
     defaultOrganization: {
         type: Schema.Types.ObjectId,
