@@ -11,9 +11,9 @@ cloudinary.config({
 
 // Upload an image
 
-const uplaodOnCloudinary = async (localFilePath) => {
+const uploadOnCloudinary = async (localFilePath) => {
     try {
-        if (!localFilePath) return null
+        if(!localFilePath) return null
         const response = await cloudinary.uploader.upload(
             localFilePath, {
                 resource_type: "auto"
@@ -22,12 +22,16 @@ const uplaodOnCloudinary = async (localFilePath) => {
         console.log(`File uplaoded on cloudinary. File src: ${response.url}`)
         
         //once the file is uploaded, ew would like to delete from our server
-        fs.unlinkSync(localFilePath)
+        if (fs.existsSync(localFilePath)) {
+            fs.unlinkSync(localFilePath);
+        }
         return response
     } catch (error) {
-        fs.unlinkSync(localFilePath)
+        if (localFilePath && fs.existsSync(localFilePath)) {
+            fs.unlinkSync(localFilePath);
+        }
         return null
     }
 }
 
-export {uplaodOnCloudinary}
+export {uploadOnCloudinary}

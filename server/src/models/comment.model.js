@@ -15,11 +15,6 @@ const commentSchema = new Schema({
     ref: 'Task', 
     required: true 
   },
-  organization: { 
-    type: Schema.Types.ObjectId, 
-    ref: 'Organization', 
-    required: true 
-  },
   attachments: [{
     fileName: String,
     fileUrl: String,
