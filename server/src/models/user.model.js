@@ -32,7 +32,7 @@ const userSchema = new Schema({
     },
     avatar: {
         type: String,
-        default: "" 
+        required: true
     },
     refreshToken: {
         type: String
@@ -58,7 +58,8 @@ userSchema.methods.generateAccessToken = function (){
         _id: this._id,
         email: this.email,
         firstName: this.firstName,
-        lastName: this.lastName 
+        lastName: this.lastName,
+        role: this.role,
     },
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: process.env.ACCESS_TOKEN_EXPIRY}

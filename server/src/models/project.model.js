@@ -1,5 +1,4 @@
-import mongoose, { model, Schema } from "mongoose"
-
+import mongoose, { model, Schema } from "mongoose";
 const projectSchema = new Schema({
     name: {
         type: String,
@@ -11,18 +10,13 @@ const projectSchema = new Schema({
         type: String,
         trim: true,
     },
-    organization: {
-        type: Schema.Types.ObjectId,
-        ref: "Organization",
-        required: true,
-    },
     startDate: {
         type: Date,
         required: true,
     },
     endDate: {
         type: Date,
-        required
+        required: true
     },
     priority: {
         type: String,
@@ -43,5 +37,4 @@ const projectSchema = new Schema({
     timestamps: true
 })
 
-const Project = model("Project", projectSchema)
-export default Project
+export const Project = model("Project", projectSchema)
