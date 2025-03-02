@@ -4,6 +4,28 @@ import { User } from "../models/user.model.js"
 import {uploadOnCloudinary, deleteFromCloudinary} from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 
+
+const generateAccessAndRefreshToken = async(userId) => {
+    try {
+        const user = User.findOne(userId)
+    
+        if(!user){
+            throw new ApiError(401, "user not exists")
+        }
+    
+        const accessToken = user.generateAccessToken()
+        const refreshToken = user.generateRefreshToken()
+    
+        user.refreshToken = refreshToken
+        await user.save({validateBeforeSave: false})
+        return { accessToken, refreshToken }
+    } catch (error) {
+        throw new ApiError(500, "Something went wrong while generating access and refresh token")
+    }
+
+}
+
+
 const registerUser = asyncHandler(async (req, res) => {
     const {
         firstName, 
@@ -76,6 +98,15 @@ const registerUser = asyncHandler(async (req, res) => {
         }
 
         throw new ApiError(500, "Something went wrong while creting a user and avatar image is deleted")
+    }
+})
+
+
+const  loginUser = asyncHandler(async (req,res) => {
+    try {
+        
+    } catch (error) {
+        
     }
 })
 
