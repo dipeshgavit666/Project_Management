@@ -99,20 +99,37 @@ const registerUser = asyncHandler(async (req, res) => {
 const  loginUser = asyncHandler(async (req,res) => {
     try {
         const { email, password } = req.body;
+
         const user = User.findOne({email});
         if(!user){
             throw new ApiError(401, "Invalid credentials")
         }
 
-        const isMatch = await User.comparePassword(password)
+        const isMatch = await User.isPasswordCorrect(password)
         if(!isMatch){
             throw new ApiError(401, "incorrect password")
         }
 
-        const token = generateAccessAndRefreshToken(user._id)
+        const {accessToken, refreshToken} = generateAccessAndRefreshToken(user._id)
+
+        const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
+        // if(!loggedInUser){
+        //     throw new ApiError(401, "Something went wrong while logging in")
+        // }
+
+
+        const options = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production"
+        }
+
         return res
         .status(201)
-        .json(new ApiResponse(201,token, user, "User logged in successfully"))
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json(new ApiResponse(200,
+            {user: loggedInUser, accessToken, refreshToken},
+             "User logged in successfully"))
     } catch (error) {
         throw new ApiError(401, "Something went wrong while loging in")
     }

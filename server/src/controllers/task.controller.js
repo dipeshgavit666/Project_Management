@@ -26,6 +26,9 @@ const createTask = asyncHandler( async(req,res) => {
                 author: req.user._id
             })
 
+            return res
+            .status(201)
+            .json(new ApiResponse(201, createTask, "Task created successfully"))
         
     } catch (error) {
         throw new ApiError(401, "something went wrong while creating task")
