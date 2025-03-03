@@ -2,6 +2,8 @@ import { Project } from "../models/project.model.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
+
+//create project
 const createProject = asyncHandler( async (req, res) => {
     const {
         name, 
@@ -40,6 +42,21 @@ const createProject = asyncHandler( async (req, res) => {
         throw new ApiError(500, "Something went wrong while creting a project")
     }
 })
+
+
+//updateproject
+
+
+
+//delete project
+
+
+//get all projects
+
+//get single project
+
+//add new team members in project
+
 
 export { 
     createProject

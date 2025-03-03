@@ -53,12 +53,6 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(409, "User with this email already exists")
     }
 
-    // Upload avatar to Cloudinary
-    // const avatar = await uploadOnCloudinary(avatarLocalPath)
-    // if(!avatar || !avatar.url) {
-    //     throw new ApiError(500, "Error uploading avatar to Cloudinary")
-    // }
-
     let avatar;
     try {
         avatar = await uploadOnCloudinary(avatarLocalPath)
@@ -104,12 +98,27 @@ const registerUser = asyncHandler(async (req, res) => {
 
 const  loginUser = asyncHandler(async (req,res) => {
     try {
-        
+        const { email, password } = req.body;
+        const user = User.findOne({email});
+        if(!user){
+            throw new ApiError(401, "Invalid credentials")
+        }
+
+        const isMatch = await User.comparePassword(password)
+        if(!isMatch){
+            throw new ApiError(401, "incorrect password")
+        }
+
+        const token = generateAccessAndRefreshToken(user._id)
+        return res
+        .status(201)
+        .json(new ApiResponse(201,token, user, "User logged in successfully"))
     } catch (error) {
-        
+        throw new ApiError(401, "Something went wrong while loging in")
     }
 })
 
 export {
-    registerUser
+    registerUser,
+    loginUser
 }
