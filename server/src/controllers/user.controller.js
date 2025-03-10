@@ -139,9 +139,27 @@ const  loginUser = asyncHandler(async (req,res) => {
 const logoutUser = asyncHandler( async (req, res ) => {
     try {
         await User.findByIdAndUpdate(
-            // req.user._id,
-            // need to come back here after writing middleware for user
+            req.user._id,
+            {
+                $set: {
+                    refreshToken:  undefined,
+                }
+            },
+            {new: true}
         )
+
+        const optioins = {
+            httpOnly: true,
+            secure: proocess.env.NODE_ENV === "production",
+        }
+
+        return res
+            .status(200)
+            .clearCookie("accessToken", optioins)
+            .clearCookie("refreshToken", optioins)
+            .json(  new ApiResponse(200, {}, "Usser logged out successfully"))
+
+
     } catch (error) {
         
     }
@@ -193,5 +211,6 @@ const refreshAccessToken = asyncHandler ( async(req, res) => {
 export {
     registerUser,
     loginUser,
-    refreshAccessToken
+    refreshAccessToken,
+    logoutUser
 }
