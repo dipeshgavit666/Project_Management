@@ -29,14 +29,14 @@ const generateAccessAndRefreshToken = async(userId) => {
 
 const registerUser = asyncHandler(async (req, res) => {
     const {
-        firstName, 
-        lastName, 
+        name, 
+        username, 
         email,
         password,
         role,
     } = req.body
 
-    if(!firstName || !lastName || !email || !password) {
+    if(!name || !username || !email || !password) {
         throw new ApiError(400, "All fields are required")
     }
 
@@ -66,8 +66,8 @@ const registerUser = asyncHandler(async (req, res) => {
 
     try {
         const user = await User.create({
-            firstName,
-            lastName,
+            name,
+            username,
             avatar: avatar.url,
             email,
             password,
@@ -235,17 +235,17 @@ const getCurrentUser = asyncHandler (async (req, res) => {
 
 
 const updateAccountDetails = asyncHandler (async (req, res) => {
-    const {firstName, lastName} = req.body
-    if(!firstName  && !lastName){
-        throw new  ApiError(401, "first  nam and last name are required")
+    const {name, username} = req.body
+    if(!name  && !username){
+        throw new  ApiError(401, "name and username are required")
     }
 
     const user = await User.findByIdAndUpdate(
         req.user._id,
         {
             $set: {
-                firstName,
-                lastName
+                name,
+                username
             }
         },
         {
@@ -285,6 +285,13 @@ const updateUserAvatar = asyncHandler (async (req, res) => {
     ).select("-password -refreshToken")
 
     return res.status(200).json( new ApiResponse(200, user, "Avatar updated successfully"))
+})
+
+const getUserProfile = asyncHandler( async(req,res) => {
+    const {username}  = req.params
+    if(!username){
+        throw new ApiError{400, "Username is required"}
+    }
 })
 
 

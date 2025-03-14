@@ -3,12 +3,12 @@ import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt" // Missing import
 
 const userSchema = new Schema({
-    firstName: {
+    name: {
         type: String,
         required: [true, "First name is required"],
         trim: true
     },
-    lastName: {
+    username: {
         type: String,
         required: [true, "Last name is required"],
         trim: true
@@ -57,8 +57,8 @@ userSchema.methods.generateAccessToken = function (){
     return jwt.sign({
         _id: this._id,
         email: this.email,
-        firstName: this.firstName,
-        lastName: this.lastName,
+        name: this.name,
+        username: this.username,
         role: this.role,
     },
     process.env.ACCESS_TOKEN_SECRET,
