@@ -6,24 +6,17 @@ const projectSchema = new Schema({
         trim: true,
         maxlength: [60, "you can use more than 60 characters"]
     },
+    emoji: {
+      type: String,
+      required: false,
+      trim: true,
+      default: "📊",
+    },
     description: {
         type: String,
-        trim: true,
+        trim: false,
     },
-    startDate: {
-        type: Date,
-        required: true,
-    },
-    endDate: {
-        type: Date,
-        required: true
-    },
-    priority: {
-        type: String,
-        enum: ['low', 'medium', 'high'],
-        default: 'medium'
-    },
-    owner: {
+    createdBy: {
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true,

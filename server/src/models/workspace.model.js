@@ -1,53 +1,34 @@
 import mongoose, { model, Schema } from "mongoose";
+import { generateInviteCode } from "../utils/uuid.js"
 
-const WorkspaceSchema = new Schema({
+const workspaceSchema = new Schema({
     name: {
         type: String,
-        required: true,
-        trim: true
+        required: [true, "Project name is required"],
+        trim: true,
+        maxlength: [60, "you can use more than 60 characters"]
     },
     description: {
         type: String,
-        trim: true
+        trim: true,
     },
-    logo: {
-        type: String
-    },
-    website: {
-        type: String
-    },
-    industry: {
-        type: String,
-        trim: true
-    },
-    size: {
-        type: String,
-        enum: ['1-10', '11-50', '51-200', '201-500', '500+'],
-        default: '1-10'
-    },
-    status: {
-        type: String,
-        rnum: ['active', 'inactive', 'suspemded'],
-        default: 'active'
-    },
-    createdBy: {
+    owner: {
         type: Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        required: true,
     },
-    subsritionPlan: {
+    inviteCode: {
         type: String,
-        rnum: ['free', 'basic', 'professional', 'enterprise'],
-        default: 'free'
+        required: true,
+        unique: true,
+        default: generateInviteCode
     },
-    SubscriptionStatus: {
-        type: String,
-        enum: ['active', 'trial', 'expired'],
-        default: 'trial'
-    }
-
 }, {
     timestamps: true
 })
 
-const Workspace = model("Organization", WorkspaceSchema)
-export default Workspace
+workspaceSchema.methods.resetInviteCode = function() {
+    this.inviteCode = generateInviteCode()
+}
+
+export const Workspace = model("Project", workspaceSchema)

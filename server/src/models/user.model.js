@@ -25,13 +25,8 @@ const userSchema = new Schema({
         required: [true, "password is required"],
         minlength: [6, "Password must be at least 6 characters"] 
     },
-    role: {
-        type: String,
-        enum: ['admin', 'project_manager', 'team_member'],
-        default: 'team_member'
-    },
     curentWorkspace: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: 'Workspace'
     },
     avatar: {
@@ -40,7 +35,7 @@ const userSchema = new Schema({
     },
     isActive: { type: Boolean, default: true },
     lastLogin: { type: Date, default: null },
-    
+
     refreshToken: {
         type: String
     }
