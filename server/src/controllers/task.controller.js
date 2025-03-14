@@ -1,74 +1,131 @@
-import { Task } from "../models/task.model.js"
-import { Project } from "../models/project.model.js"
-import { ApiError } from "../utils/ApiError.js"
-import { ApiResponse } from "../utils/ApiResponse.js"
-import { asyncHandler } from "../utils/asyncHandler"
+import { asyncHandler } from "../middlewares/asyncHandler.middleware.js";
+import { HTTPSTATUS } from "../config/http.config.js";
+import { getMemberRoleInWorkspace } from "../services/member.service.js";
+import { roleGuard } from "../utils/roleGuard.js";
+import { Permissions } from "../enums/role.enum.js";
+import {
+  createTaskService,
+  deleteTaskService,
+  getAllTasksService,
+  getTaskByIdService,
+  updateTaskService,
+} from "../services/task.service.js";
 
-// create task
-const createTask = asyncHandler( async(req,res) => {
-    try {
-        const project = Project.findById(req.boody.project);
-            if(!project){
-                throw new ApiError(401, "somethinf went wrong while creating task")
-            }
+// Manual validation functions (replacing Zod)
+const validateString = (value) => (typeof value === "string" && value.trim() !== "") ? value : null;
 
-            //check if user is part of the project
-            const isMember = project.team.some(
-                (team) => team.user.toString() === req.user._id.toString()
-            )
+export const createTaskController = asyncHandler(async (req, res) => {
+  const userId = req.user?._id;
+  const body = req.body;
+  const projectId = validateString(req.params.projectId);
+  const workspaceId = validateString(req.params.workspaceId);
 
-            if(!isMember){
-                throw new ApiError(403, "must be a member of the project to create a task")
-            }
+  if (!projectId || !workspaceId) {
+    return res.status(HTTPSTATUS.BAD_REQUEST).json({ message: "Invalid project or workspace ID" });
+  }
 
-            const task = await Task.create({
-                ... req.boody,
-                author: req.user._id
-            })
+  const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+  roleGuard(role, [Permissions.CREATE_TASK]);
 
-            return res
-            .status(201)
-            .json(new ApiResponse(201, createTask, "Task created successfully"))
-        
-    } catch (error) {
-        throw new ApiError(401, "something went wrong while creating task")
-    }
-})
+  const { task } = await createTaskService(workspaceId, projectId, userId, body);
 
+  return res.status(HTTPSTATUS.OK).json({
+    message: "Task created successfully",
+    task,
+  });
+});
 
+export const updateTaskController = asyncHandler(async (req, res) => {
+  const userId = req.user?._id;
+  const body = req.body;
+  const taskId = validateString(req.params.id);
+  const projectId = validateString(req.params.projectId);
+  const workspaceId = validateString(req.params.workspaceId);
 
-// delete task
-const deleteTask = asyncHandler( async(req,res) => {
-    try {
-        
-    } catch (error) {
-        throw new ApiError(401, "something went wrong while deleting task")
-    }
-})
+  if (!taskId || !projectId || !workspaceId) {
+    return res.status(HTTPSTATUS.BAD_REQUEST).json({ message: "Invalid task, project, or workspace ID" });
+  }
 
-// update task
-const updateTask = asyncHandler( async(req,res) => {
-    try {
-        
-    } catch (error) {
-        throw new ApiError(401, "something went wrong while updating task")
-    }
-})
+  const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+  roleGuard(role, [Permissions.EDIT_TASK]);
 
-// get all tasks
-const getAllTasks = asyncHandler( async(req,res) => {
-    try {
-        
-    } catch (error) {
-        throw new ApiError(401, "something went wrong while getting all tasks")
-    }
-})
+  const { updatedTask } = await updateTaskService(workspaceId, projectId, taskId, body);
 
-// get a single task
-const getTask = asyncHandler( async(req,res) => {
-    try {
-        
-    } catch (error) {
-        throw new ApiError(401, "something went wrong while getting task")
-    }
-})
+  return res.status(HTTPSTATUS.OK).json({
+    message: "Task updated successfully",
+    task: updatedTask,
+  });
+});
+
+export const getAllTasksController = asyncHandler(async (req, res) => {
+  const userId = req.user?._id;
+  const workspaceId = validateString(req.params.workspaceId);
+  
+  if (!workspaceId) {
+    return res.status(HTTPSTATUS.BAD_REQUEST).json({ message: "Invalid workspace ID" });
+  }
+
+  const filters = {
+    projectId: req.query.projectId,
+    status: req.query.status ? req.query.status.split(",") : undefined,
+    priority: req.query.priority ? req.query.priority.split(",") : undefined,
+    assignedTo: req.query.assignedTo ? req.query.assignedTo.split(",") : undefined,
+    keyword: req.query.keyword,
+    dueDate: req.query.dueDate,
+  };
+
+  const pagination = {
+    pageSize: parseInt(req.query.pageSize) || 10,
+    pageNumber: parseInt(req.query.pageNumber) || 1,
+  };
+
+  const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+  roleGuard(role, [Permissions.VIEW_ONLY]);
+
+  const result = await getAllTasksService(workspaceId, filters, pagination);
+
+  return res.status(HTTPSTATUS.OK).json({
+    message: "All tasks fetched successfully",
+    ...result,
+  });
+});
+
+export const getTaskByIdController = asyncHandler(async (req, res) => {
+  const userId = req.user?._id;
+  const taskId = validateString(req.params.id);
+  const projectId = validateString(req.params.projectId);
+  const workspaceId = validateString(req.params.workspaceId);
+
+  if (!taskId || !projectId || !workspaceId) {
+    return res.status(HTTPSTATUS.BAD_REQUEST).json({ message: "Invalid task, project, or workspace ID" });
+  }
+
+  const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+  roleGuard(role, [Permissions.VIEW_ONLY]);
+
+  const task = await getTaskByIdService(workspaceId, projectId, taskId);
+
+  return res.status(HTTPSTATUS.OK).json({
+    message: "Task fetched successfully",
+    task,
+  });
+});
+
+export const deleteTaskController = asyncHandler(async (req, res) => {
+  const userId = req.user?._id;
+  const taskId = validateString(req.params.id);
+  const workspaceId = validateString(req.params.workspaceId);
+
+  if (!taskId || !workspaceId) {
+    return res.status(HTTPSTATUS.BAD_REQUEST).json({ message: "Invalid task or workspace ID" });
+  }
+
+  const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+  roleGuard(role, [Permissions.DELETE_TASK]);
+
+  await deleteTaskService(workspaceId, taskId);
+
+  return res.status(HTTPSTATUS.OK).json({
+    message: "Task deleted successfully",
+  });
+});

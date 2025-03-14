@@ -2,9 +2,7 @@ import mongoose from "mongoose";
 import { Permissions, Roles } from "../enums/role.enum.js";
 import { RolePermissions } from "../utils/role-permission.js";
 
-const { Schema, model } = mongoose;
-
-const roleSchema = new Schema(
+const roleSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -26,5 +24,5 @@ const roleSchema = new Schema(
   }
 );
 
-const Role = model("Role", roleSchema);
-export default Role;
+const RoleModel = mongoose.model("Role", roleSchema);
+export default RoleModel;

@@ -1,10 +1,11 @@
-import mongoose, { model, Schema } from "mongoose";
-const projectSchema = new Schema({
+import mongoose from "mongoose";
+
+const projectSchema = new mongoose.Schema(
+  {
     name: {
-        type: String,
-        required: [true, "Project name is required"],
-        trim: true,
-        maxlength: [60, "you can use more than 60 characters"]
+      type: String,
+      required: true,
+      trim: true,
     },
     emoji: {
       type: String,
@@ -12,22 +13,22 @@ const projectSchema = new Schema({
       trim: true,
       default: "📊",
     },
-    description: {
-        type: String,
-        trim: false,
+    description: { type: String, required: false },
+    workspace: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Workspace",
+      required: true,
     },
     createdBy: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
-    team: [{
-        type: Schema.Types.ObjectId,
-        ref: 'User'
-    }],
+  },
+  {
+    timestamps: true,
+  }
+);
 
-}, {
-    timestamps: true
-})
-
-export const Project = model("Project", projectSchema)
+const ProjectModel = mongoose.model("Project", projectSchema);
+export default ProjectModel;

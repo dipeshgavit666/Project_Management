@@ -2,9 +2,7 @@ import mongoose from "mongoose";
 import { TaskPriorityEnum, TaskStatusEnum } from "../enums/task.enum.js";
 import { generateTaskCode } from "../utils/uuid.js";
 
-const { Schema, model, Types } = mongoose;
-
-const taskSchema = new Schema(
+const taskSchema = new mongoose.Schema(
   {
     taskCode: {
       type: String,
@@ -22,12 +20,12 @@ const taskSchema = new Schema(
       default: null,
     },
     project: {
-      type: Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Project",
       required: true,
     },
     workspace: {
-      type: Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Workspace",
       required: true,
     },
@@ -42,12 +40,12 @@ const taskSchema = new Schema(
       default: TaskPriorityEnum.MEDIUM,
     },
     assignedTo: {
-      type: Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       default: null,
     },
     createdBy: {
-      type: Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
@@ -61,5 +59,6 @@ const taskSchema = new Schema(
   }
 );
 
-const TaskModel = model("Task", taskSchema);
+const TaskModel = mongoose.model("Task", taskSchema);
+
 export default TaskModel;

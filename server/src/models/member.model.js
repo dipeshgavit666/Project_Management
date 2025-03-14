@@ -1,21 +1,19 @@
 import mongoose from "mongoose";
 
-const { Schema, model, Types } = mongoose;
-
-const memberSchema = new Schema(
+const memberSchema = new mongoose.Schema(
   {
     userId: {
-      type: Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
     workspaceId: {
-      type: Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Workspace",
       required: true,
     },
     role: {
-      type: Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Role",
       required: true,
     },
@@ -29,5 +27,5 @@ const memberSchema = new Schema(
   }
 );
 
-const Member = model("Member", memberSchema);
-export default Member;
+const MemberModel = mongoose.model("Member", memberSchema);
+export default MemberModel;

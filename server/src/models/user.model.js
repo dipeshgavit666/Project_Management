@@ -1,81 +1,56 @@
-import mongoose, { model, Schema } from "mongoose"
-import jwt from "jsonwebtoken"
-import bcrypt from "bcrypt" // Missing import
+import mongoose from "mongoose";
+import { compareValue, hashValue } from "../utils/bcrypt.js";
 
-const userSchema = new Schema({
+const userSchema = new mongoose.Schema(
+  {
     name: {
-        type: String,
-        required: [true, "Name is required"],
-        trim: true
-    },
-    username: {
-        type: String,
-        required: [true, "username is required"],
-        trim: true
+      type: String,
+      required: false,
+      trim: true,
     },
     email: {
-        type: String,
-        required: [true, "email is required"],
-        unique: true,
-        lowercase: true,
-        trim: true
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      lowercase: true,
     },
-    password: {
-        type: String,
-        required: [true, "password is required"],
-        minlength: [6, "Password must be at least 6 characters"] 
+    password: { type: String, select: true },
+    profilePicture: {
+      type: String,
+      default: null,
     },
-    curentWorkspace: {
-        type: Schema.Types.ObjectId,
-        ref: 'Workspace'
-    },
-    avatar: {
-        type: String,
-        required: true
+    currentWorkspace: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Workspace",
     },
     isActive: { type: Boolean, default: true },
     lastLogin: { type: Date, default: null },
+  },
+  {
+    timestamps: true,
+  }
+);
 
-    refreshToken: {
-        type: String
-    }
-}, {
-    timestamps: true
-})
-
-
+// Hash password before saving
 userSchema.pre("save", async function (next) {
-    if(!this.isModified("password")) return next()
-    this.password = await bcrypt.hash(this.password, 10) 
-    next()
-})
+  if (this.isModified("password") && this.password) {
+    this.password = await hashValue(this.password);
+  }
+  next();
+});
 
-userSchema.methods.isPasswordCorrect = async function (password) {
-    return await bcrypt.compare(password, this.password)
-}
+// Remove password field when returning user object
+userSchema.methods.omitPassword = function () {
+  const userObject = this.toObject();
+  delete userObject.password;
+  return userObject;
+};
 
-userSchema.methods.generateAccessToken = function (){
-    //short lived access token
-    return jwt.sign({
-        _id: this._id,
-        email: this.email,
-        name: this.name,
-        username: this.username,
-        role: this.role,
-    },
-    process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: process.env.ACCESS_TOKEN_EXPIRY}
-    );
-}
+// Compare passwords
+userSchema.methods.comparePassword = async function (value) {
+  return compareValue(value, this.password);
+};
 
-userSchema.methods.generateRefreshToken = function (){
-    //refresh token
-    return jwt.sign({
-        _id: this._id,
-    },
-    process.env.REFRESH_TOKEN_SECRET,
-    { expiresIn: process.env.REFRESH_TOKEN_EXPIRY}
-    );
-}
-
-export const User = model("User", userSchema)
+const UserModel = mongoose.model("User", userSchema);
+export default UserModel;

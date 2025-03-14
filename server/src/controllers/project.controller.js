@@ -1,63 +1,140 @@
-import { Project } from "../models/project.model.js"
-import { ApiResponse } from "../utils/ApiResponse.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/ApiError.js";
+import asyncHandler from "../middlewares/asyncHandler.middleware.js";
+import { HTTPSTATUS } from "../config/http.config.js";
+import { getMemberRoleInWorkspace } from "../services/member.service.js";
+import { roleGuard } from "../utils/roleGuard.js";
+import { Permissions } from "../enums/role.enum.js";
+import {
+  createProjectService,
+  deleteProjectService,
+  getProjectAnalyticsService,
+  getProjectByIdAndWorkspaceIdService,
+  getProjectsInWorkspaceService,
+  updateProjectService,
+} from "../services/project.service.js";
 
-//create project
-const createProject = asyncHandler( async (req, res) => {
-    const {
-        name, 
-        description,
-        startDate,
-        endDate,
-        priority,
-        owner,
-        team
-    } = req.body
+// Utility function for manual validation (alternative to Zod)
+const validateString = (value) => (typeof value === "string" && value.trim() !== "") ? value : null;
 
+export const createProjectController = asyncHandler(async (req, res) => {
+  const body = req.body;
+  const workspaceId = validateString(req.params.workspaceId);
+  const userId = req.user?._id;
 
+  if (!workspaceId) {
+    return res.status(HTTPSTATUS.BAD_REQUEST).json({ message: "Invalid workspace ID" });
+  }
 
-    try {
-        const project = await Project.create({
-            name, 
-            description,
-            startDate,
-            endDate,
-            priority,
-            owner,
-            team
-        })
+  const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+  roleGuard(role, [Permissions.CREATE_PROJECT]);
 
-        const createdProject = await Project.findById(project._id)
-    
-        if(!createdProject){
-            throw new ApiError(500, "Something went wrong")
-        }
+  const { project } = await createProjectService(userId, workspaceId, body);
 
-        return res
-            .status(200)
-            .json(new ApiResponse(201, createProject, "Project craeted"))
-    } catch (error) {
-        console.log("Project creation failed")
-        throw new ApiError(500, "Something went wrong while creting a project")
-    }
-})
+  return res.status(HTTPSTATUS.CREATED).json({
+    message: "Project created successfully",
+    project,
+  });
+});
 
+export const getAllProjectsInWorkspaceController = asyncHandler(async (req, res) => {
+  const workspaceId = validateString(req.params.workspaceId);
+  const userId = req.user?._id;
 
-//updateproject
+  if (!workspaceId) {
+    return res.status(HTTPSTATUS.BAD_REQUEST).json({ message: "Invalid workspace ID" });
+  }
 
+  const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+  roleGuard(role, [Permissions.VIEW_ONLY]);
 
+  const pageSize = parseInt(req.query.pageSize) || 10;
+  const pageNumber = parseInt(req.query.pageNumber) || 1;
 
-//delete project
+  const { projects, totalCount, totalPages, skip } =
+    await getProjectsInWorkspaceService(workspaceId, pageSize, pageNumber);
 
+  return res.status(HTTPSTATUS.OK).json({
+    message: "Projects fetched successfully",
+    projects,
+    pagination: { totalCount, pageSize, pageNumber, totalPages, skip, limit: pageSize },
+  });
+});
 
-//get all projects
+export const getProjectByIdAndWorkspaceIdController = asyncHandler(async (req, res) => {
+  const projectId = validateString(req.params.id);
+  const workspaceId = validateString(req.params.workspaceId);
+  const userId = req.user?._id;
 
-//get single project
+  if (!projectId || !workspaceId) {
+    return res.status(HTTPSTATUS.BAD_REQUEST).json({ message: "Invalid project or workspace ID" });
+  }
 
-//add new team members in project
+  const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+  roleGuard(role, [Permissions.VIEW_ONLY]);
 
+  const { project } = await getProjectByIdAndWorkspaceIdService(workspaceId, projectId);
 
-export { 
-    createProject
-}
+  return res.status(HTTPSTATUS.OK).json({
+    message: "Project fetched successfully",
+    project,
+  });
+});
+
+export const getProjectAnalyticsController = asyncHandler(async (req, res) => {
+  const projectId = validateString(req.params.id);
+  const workspaceId = validateString(req.params.workspaceId);
+  const userId = req.user?._id;
+
+  if (!projectId || !workspaceId) {
+    return res.status(HTTPSTATUS.BAD_REQUEST).json({ message: "Invalid project or workspace ID" });
+  }
+
+  const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+  roleGuard(role, [Permissions.VIEW_ONLY]);
+
+  const { analytics } = await getProjectAnalyticsService(workspaceId, projectId);
+
+  return res.status(HTTPSTATUS.OK).json({
+    message: "Project analytics retrieved successfully",
+    analytics,
+  });
+});
+
+export const updateProjectController = asyncHandler(async (req, res) => {
+  const userId = req.user?._id;
+  const projectId = validateString(req.params.id);
+  const workspaceId = validateString(req.params.workspaceId);
+  const body = req.body;
+
+  if (!projectId || !workspaceId) {
+    return res.status(HTTPSTATUS.BAD_REQUEST).json({ message: "Invalid project or workspace ID" });
+  }
+
+  const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+  roleGuard(role, [Permissions.EDIT_PROJECT]);
+
+  const { project } = await updateProjectService(workspaceId, projectId, body);
+
+  return res.status(HTTPSTATUS.OK).json({
+    message: "Project updated successfully",
+    project,
+  });
+});
+
+export const deleteProjectController = asyncHandler(async (req, res) => {
+  const userId = req.user?._id;
+  const projectId = validateString(req.params.id);
+  const workspaceId = validateString(req.params.workspaceId);
+
+  if (!projectId || !workspaceId) {
+    return res.status(HTTPSTATUS.BAD_REQUEST).json({ message: "Invalid project or workspace ID" });
+  }
+
+  const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+  roleGuard(role, [Permissions.DELETE_PROJECT]);
+
+  await deleteProjectService(workspaceId, projectId);
+
+  return res.status(HTTPSTATUS.OK).json({
+    message: "Project deleted successfully",
+  });
+});
