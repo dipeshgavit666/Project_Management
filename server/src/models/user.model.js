@@ -5,12 +5,12 @@ import bcrypt from "bcrypt" // Missing import
 const userSchema = new Schema({
     name: {
         type: String,
-        required: [true, "First name is required"],
+        required: [true, "Name is required"],
         trim: true
     },
     username: {
         type: String,
-        required: [true, "Last name is required"],
+        required: [true, "username is required"],
         trim: true
     },
     email: {

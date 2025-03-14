@@ -1,6 +1,6 @@
 import mongoose, { model, Schema } from "mongoose";
 
-const OrganizationSchema = new Schema({
+const WorkspaceSchema = new Schema({
     name: {
         type: String,
         required: true,
@@ -49,5 +49,5 @@ const OrganizationSchema = new Schema({
     timestamps: true
 })
 
-const Organization = model("Organization", OrganizationSchema)
-export default Organization
+const Workspace = model("Organization", WorkspaceSchema)
+export default Workspace

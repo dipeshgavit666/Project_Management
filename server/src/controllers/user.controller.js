@@ -287,12 +287,6 @@ const updateUserAvatar = asyncHandler (async (req, res) => {
     return res.status(200).json( new ApiResponse(200, user, "Avatar updated successfully"))
 })
 
-const getUserProfile = asyncHandler( async(req,res) => {
-    const {username}  = req.params
-    if(!username){
-        throw new ApiError{400, "Username is required"}
-    }
-})
 
 
 export {
