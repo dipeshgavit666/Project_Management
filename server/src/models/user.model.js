@@ -30,10 +30,17 @@ const userSchema = new Schema({
         enum: ['admin', 'project_manager', 'team_member'],
         default: 'team_member'
     },
+    curentWorkspace: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Workspace'
+    },
     avatar: {
         type: String,
         required: true
     },
+    isActive: { type: Boolean, default: true },
+    lastLogin: { type: Date, default: null },
+    
     refreshToken: {
         type: String
     }
