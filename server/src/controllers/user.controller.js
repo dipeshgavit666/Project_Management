@@ -161,7 +161,7 @@ const logoutUser = asyncHandler( async (req, res ) => {
 
 
     } catch (error) {
-        
+        throw new ApiError(401, "something went wrong while logging out")
     }
 })
 
@@ -240,7 +240,7 @@ const updateAccountDetails = asyncHandler (async (req, res) => {
         throw new  ApiError(401, "first  nam and last name are required")
     }
 
-    await User.findByIdAndUpdate(
+    const user = await User.findByIdAndUpdate(
         req.user._id,
         {
             $set: {
@@ -251,7 +251,40 @@ const updateAccountDetails = asyncHandler (async (req, res) => {
         {
             new: true
         }
-    )
+    ).select("-password -refreshToken")
+
+    return res.status(200).json(new ApiResponse(200, user, "Account details updated successfully" ))
+})
+
+const updateUserAvatar = asyncHandler (async (req, res) => {
+    const avatarLocalPath  = req.file?.path
+    if (!avatarLocalPath) {
+        throw new ApiError(400, "File is required")
+    }
+
+    let avatar;
+    try {
+        avatar = await uploadOnCloudinary(avatarLocalPath)
+        console.log("Uploaded avatar", avatar)
+    } catch (error) {
+        console.log("Error uploading avatar", error)
+        throw new ApiError(500, "Failed to uplaod avatar")
+    }
+
+    if(!avatar.url){
+        throw new ApiError(500, "Something went wrong while uplaoding avatar")
+    }
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set: {
+                avatar: avatar.url
+            }
+        },
+        {new: true}
+    ).select("-password -refreshToken")
+
+    return res.status(200).json( new ApiResponse(200, user, "Avatar updated successfully"))
 })
 
 
