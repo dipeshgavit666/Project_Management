@@ -19,7 +19,7 @@ const createProject = asyncHandler( async (req, res) => {
 
     try {
         const project = await Project.create({
-            name, 
+            name,
             description,
             startDate,
             endDate,
@@ -27,7 +27,7 @@ const createProject = asyncHandler( async (req, res) => {
             owner,
             team
         })
-
+    
         const createdProject = await Project.findById(project._id)
     
         if(!createdProject){
@@ -45,10 +45,32 @@ const createProject = asyncHandler( async (req, res) => {
 
 
 //updateproject
+const updateproject = asyncHandler( async (req, res) => {
+    const { name, description } = req.body
+    if(!name && !description){
+        throw new ApiError(401, "Project namw and descrition is required")
+    }
+
+    const project = await Project.findByIdAndUpdate(
+        req.project._id,
+        {
+            $set: {
+                name,
+                description
+            }
+        },
+        { new: true }
+    ).select("-team")
+
+    return res.status(200).json( new ApiResponse(200, project, "Project updated successfully"))
+})
 
 
 
 //delete project
+const deleteProject = asyncHandler ( async(req, res) => {
+
+})
 
 
 //get all projects

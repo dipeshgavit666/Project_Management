@@ -10,20 +10,7 @@ const projectSchema = new Schema({
         type: String,
         trim: true,
     },
-    startDate: {
-        type: Date,
-        required: true,
-    },
-    endDate: {
-        type: Date,
-        required: true
-    },
-    priority: {
-        type: String,
-        enum: ['low', 'medium', 'high'],
-        default: 'medium'
-    },
-    owner: {
+    createdBy: {
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true,
@@ -38,3 +25,4 @@ const projectSchema = new Schema({
 })
 
 export const Project = model("Project", projectSchema)
+
