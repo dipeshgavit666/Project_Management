@@ -25,12 +25,14 @@ app.use(cookieParser())
 //import routes
 import  projectRouter  from "./src/routes/project.routes.js"
 import userRouter from "./src/routes/user.routes.js"
+import inviteRouter from "./src/routes/invite.routes.js"
 import { errorHandler } from "./src/middlewares/error.middleware.js"
 
 
 //routes
 app.use("/api/v1/project", projectRouter)
 app.use("/api/v1/users", userRouter)
+app.use("api/v1/invites", inviteRouter)
 
 app.use(errorHandler)
 
