@@ -6,7 +6,7 @@ const inviteCodeSchema = new Schema({
         required: true,
         uniqe: true
     },
-    project: {
+    projectId: {
         type: Schema.Types.ObjectId,
         ref: 'Project',
         required: true
