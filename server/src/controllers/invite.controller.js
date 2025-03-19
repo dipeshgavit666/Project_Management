@@ -41,3 +41,96 @@ export const generateInviteCode = asyncHandler( async(req, res) => {
     return res.status(201).json( new ApiResponse(201, inviteCode.code, "Invite code generated successfully"))
 
 })
+
+//join project using invite code
+export const joinProjectWithCode = asyncHandler(async (req, res) => {
+    try {
+      const { code } = req.body;
+      
+      const inviteCode = await InviteCode.findOne({ 
+        code, 
+        isActive: true,
+        expiresAt: { $gt: new Date() }
+      });
+      
+      if (!inviteCode) {
+        throw new ApiError(404, "Invalid or expired invitr code")
+      }
+      
+      const project = await Project.findById(inviteCode.projectId);
+      
+      if (!project) {
+        throw new ApiError(404, "Project not found")
+      }
+      
+      if (project.team.includes(req.user.id) || project.createdBy.toString() === req.user.id) {
+        throw new ApiError(400, "You are already a member of this project")
+      }
+      
+      project.teamMembers.push(req.user.id);
+      await project.save();
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Successfully joined the project',
+        project: {
+          id: project._id,
+          name: project.name
+        }
+      });
+      
+    } catch (error) {
+        throw new ApiError(500, "Error joining project")
+    }
+  });
+
+
+
+// Deactivate an invite code
+export const deactivateInviteCode = asyncHandler(async (req, res) => {
+    try {
+      const { codeId } = req.params;
+      
+      const inviteCode = await InviteCode.findById(codeId);
+      
+      if (!inviteCode) {
+        return res.status(404).json({
+          success: false,
+          message: 'Invite code not found'
+        });
+      }
+      
+      // Check user permission
+      const project = await Project.findById(inviteCode.projectId);
+      
+      if (!project) {
+        throw new ApiError(404, "Project not found")
+      }
+      
+      if (project.createdBy.toString() !== req.user.id && 
+          !project.team.includes(req.user.id) && 
+          !req.user.isAdmin) {
+        return res.status(403).json({
+          success: false,
+          message: 'Not authorized to deactivate invite codes for this project'
+        });
+      }
+      
+      // Deactivatecode
+      inviteCode.isActive = false;
+      await inviteCode.save();
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Invite code deactivated successfully'
+      });
+      
+    } catch (error) {
+      console.error('Error deactivating invite code:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Server error',
+        error: error.message
+      });
+    }
+  });
