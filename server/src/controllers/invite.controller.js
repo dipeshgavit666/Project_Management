@@ -86,6 +86,56 @@ export const joinProjectWithCode = asyncHandler(async (req, res) => {
 
 
 
+
+
+// List all active invite codes for a project
+export const getProjectInviteCodes = asyncHandler( async (req, res) => {
+    try {
+      const { projectId } = req.params;
+
+      const project = await Project.findById(projectId);
+      if (!project) {
+        return res.status(404).json({
+          success: false,
+          message: 'Project not found'
+        });
+      }
+
+      if (project.createdBy.toString() !== req.user.id && 
+          !project.team.includes(req.user.id) && 
+          !req.user.isAdmin) {
+        return res.status(403).json({
+          success: false,
+          message: 'Not authorized to view invite codes for this project'
+        });
+      }
+      
+
+      const inviteCodes = await InviteCode.find({ 
+        projectId, 
+        isActive: true,
+        expiresAt: { $gt: new Date() }
+      }).select('code createdAt expiresAt');
+      
+      return res.status(200).json({
+        success: true,
+        inviteCodes
+      });
+      
+    } catch (error) {
+      console.error('Error getting project invite codes:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Server error',
+        error: error.message
+      });
+    }
+  });
+  
+  
+
+
+
 // Deactivate an invite code
 export const deactivateInviteCode = asyncHandler(async (req, res) => {
     try {
