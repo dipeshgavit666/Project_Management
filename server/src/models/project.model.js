@@ -15,6 +15,11 @@ const projectSchema = new Schema({
         ref: 'User',
         required: true,
     },
+    status: {
+        type: String,
+        enum: ['active', 'paused', 'completed'],
+        default: 'active'
+    },
     team: [{
         type: Schema.Types.ObjectId,
         ref: 'User'
