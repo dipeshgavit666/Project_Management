@@ -33,6 +33,7 @@ import { errorHandler } from "./src/middlewares/error.middleware.js"
 app.use("/api/v1/project", projectRouter)
 app.use("/api/v1/users", userRouter)
 app.use("api/v1/invites", inviteRouter)
+app.use("/api/v1/tasks", taskrouter)
 
 app.use(errorHandler)
 
