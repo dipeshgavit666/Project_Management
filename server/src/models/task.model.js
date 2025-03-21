@@ -15,15 +15,6 @@ const taskSchema = new Schema({
     ref: 'Project', 
     required: true 
 },
-  organization: { 
-    type: Schema.Types.ObjectId, 
-    ref: 'Organization', 
-    required: true 
-},
-  assignedTo: { 
-    type: Schema.Types.ObjectId, 
-    ref: 'User' 
-},
   status: {
     type: String,
     enum: ['todo', 'in_progress', 'review', 'completed'],
@@ -37,16 +28,6 @@ const taskSchema = new Schema({
   dueDate: { 
     type: Date 
 },
-  estimatedHours: {
-    type: Number 
-},
-  actualHours: { 
-    type: Number 
-},
-  dependencies: [{ 
-    type: Schema.Types.ObjectId, 
-    ref: 'Task' 
-}],
   createdAt: { 
     type: Date, 
     default: Date.now 
